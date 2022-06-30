@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 	/* live view application work on another thread */
 	std::thread t(live_stream, std::ref(vdma_driver_0), std::ref(vdma_driver_1));
 
-	const std::string usage = "Usage: <exit|x> | <reset> | <edit> | <test>";
+	const std::string usage = "Usage: <exit|x> | <reset|r> | <edit|e>";
 	
 	std::string buf;
 	
@@ -107,8 +107,7 @@ int main(int argc, char* argv[])
 		std::cout << usage << std::endl;
 		std::cout << ">> "; std::cin >> buf;
 
-		if (buf == "exit" || buf == "x") break;
-
+		if (buf == "exit" || buf == "x" | std::cin.fail()) break;
 		if (buf == "test") {
 			const uint16_t addr = 0x503d; // debug mode addr
 			uint8_t data;
@@ -122,11 +121,11 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		if (buf == "reset") {
+		if (buf == "reset" | buf == "r") {
 			cam.work(mode_pcam5c);
 		}
 
-		if (buf == "edit"){
+		if (buf == "edit" | buf == "e"){
 			edit_param(pl_connection);
 		}
 		//if (buf == "i2c") {
