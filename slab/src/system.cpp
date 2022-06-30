@@ -44,6 +44,12 @@ namespace slab
 			case WADDR_FINDCONTOURS_DETECT_LINES:
 				write(WADDR_FINDCONTOURS_DETECT_LINES, value);
 				break;
+			case WADDR_FINDCONTOURS_BINZ_THRESHOLD:
+				write(WADDR_FINDCONTOURS_BINZ_THRESHOLD, value);
+				break;
+			case WADDR_FINDCONTOURS_VIDEO_MODE:
+				write(WADDR_FINDCONTOURS_VIDEO_MODE, value);
+				break;
 			default:
 				break;
 		}
