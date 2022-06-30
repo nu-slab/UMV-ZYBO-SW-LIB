@@ -56,11 +56,12 @@ namespace slab
 		Point_t point;
 
 		write(WADDR_FINDCONTOURS_WRITE_PROTECT, 0x1);        // set write_protect
-		while (!read(RADDR_FINDCONTOURS_READY));             // wait buffer-ready
+		while (!read(RADDR_FINDCONTOURS_READY))              // wait buffer-ready
+			usleep(10000);
 		num_of_points = read(RADDR_FINDCONTOURS_POINTS_NUM); // get number of points
 
 		/* fetch points in a frame */
-		points_.resize(0);
+		points_.clear();
 		for (int n = 0; n < num_of_points; n++) {
 			write(WADDR_FINDCONTOURS_RADDR, n);                // set read-address
 			point_data = read(RADDR_FINDCONTOURS_POINT_DATA);
