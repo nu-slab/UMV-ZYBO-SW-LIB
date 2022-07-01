@@ -16,9 +16,9 @@ namespace slab
 	//------------------------------------------------------
 	// Find Contours
 	//------------------------------------------------------
-
 	void System::set_findContoursParams(uint32_t reg_num, uint32_t value)
 	{ 
+		printf("Write : %d -> %d \n", value, reg_num);
 		switch(reg_num){
 			case WADDR_FINDCONTOURS_EDGE_THRES:
 				write(WADDR_FINDCONTOURS_EDGE_THRES  , value);
@@ -43,6 +43,15 @@ namespace slab
 				break;
 			case WADDR_FINDCONTOURS_DETECT_LINES:
 				write(WADDR_FINDCONTOURS_DETECT_LINES, value);
+				break;
+			case WADDR_FINDCONTOURS_BINZ_THRESHOLD_MIN:
+				write(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MIN, value);
+				break;
+			case WADDR_FINDCONTOURS_BINZ_THRESHOLD_MAX:
+				write(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MAX, value);
+				break;
+			case WADDR_FINDCONTOURS_VIDEO_MODE:
+				write(WADDR_FINDCONTOURS_VIDEO_MODE, value);
 				break;
 			default:
 				break;
@@ -110,14 +119,15 @@ namespace slab
 
 	int System::recv_detection(void) 
 	{ 
-		return read(RADDR_DETECTION) & 0x3; 
+		return read(RADDR_DETECTION) & 0x4; 
 	}
 	
 	// return value
-	// case 2'b00: not detected
-	// case 2'b01: detect doll
-	// case 2'b10: detect traffic light
-	// case 2'b11: detect both doll and traffic light
+	// case 4'b0000: not detected
+	// case 4'b0001: detect traffic light blue
+	// case 4'b0010: detect traffic light yellow
+	// case 4'b0100: detect traffic light red
+	// case 4'b1000: detect doll
 
 	//------------------------------------------------------
 	// debug

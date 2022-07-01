@@ -28,6 +28,7 @@
 
 /* for Debug */
 void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_0, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_1);
+
 void edit_param(slab::System pl_connection);
 
 typedef struct bgr_t { uint8_t b, g, r; } bgr_t;
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
 
 	digilent::pcam5c cam("i2c-0", mode_pcam5c, digilent::OV5640_cfg::awb_t::AWB_ADVANCED); // on-board Pcam5C
 
-	digilent::VideoOutput               vid_0(XPAR_VTC_0_DEVICE_ID), vid_1(XPAR_VTC_1_DEVICE_ID);
+	digilent::VideoOutput               vid(XPAR_VTC_0_DEVICE_ID);
 	digilent::ScuGicInterruptController irpt_ctl(static_cast<uint16_t>(XPAR_PS7_SCUGIC_0_DEVICE_ID));
 
 	digilent::AXI_VDMA<digilent::ScuGicInterruptController>
@@ -57,18 +58,20 @@ int main(int argc, char* argv[])
 				static_cast<uint32_t>(MEM_BASE_ADDR_1),                                      
 				irpt_ctl,                                                            
 				XPAR_FABRIC_AXIVDMA_1_MM2S_INTROUT_VEC_ID,     
-				XPAR_FABRIC_AXIVDMA_1_S2MM_INTROUT_VEC_ID);
+				XPAR_FABRIC_AXIVDMA_1_S2MM_INTROUT_VEC_ID),
+		vdma_driver_2(static_cast<uint16_t>(XPAR_AXIVDMA_2_DEVICE_ID),
+				static_cast<uint32_t>(MEM_BASE_ADDR_2),                                      
+				irpt_ctl,                                                            
+				XPAR_FABRIC_AXIVDMA_2_MM2S_INTROUT_VEC_ID,     
+				XPAR_FABRIC_AXIVDMA_2_S2MM_INTROUT_VEC_ID);
 
 	/* Initialize pxam5c */
 	cam.work(mode_pcam5c);
 
 	/* Initialze Video Timing Controller */
-	vid_0.reset();
-	vid_0.configure(res_hdmi);
-	vid_0.enable();
-	vid_1.reset();
-	vid_1.configure(res_hdmi);
-	vid_1.enable();
+	vid.reset();
+	vid.configure(res_hdmi);
+	vid.enable();
 
 	/* Initialize VDMA Drivers */
 	vdma_driver_0.resetWrite();
@@ -81,23 +84,27 @@ int main(int argc, char* argv[])
 	vdma_driver_1.resetWrite();
 	vdma_driver_1.configureWrite(digilent::timing[static_cast<int>(res_hdmi)].h_active, digilent::timing[static_cast<int>(res_hdmi)].v_active);
 	vdma_driver_1.enableWrite();
-	vdma_driver_1.resetRead();
-	vdma_driver_1.configureRead(digilent::timing[static_cast<int>(res_hdmi)].h_active, digilent::timing[static_cast<int>(res_hdmi)].v_active);
-	vdma_driver_1.enableRead();
+
+	vdma_driver_2.resetWrite();
+	vdma_driver_2.configureWrite(digilent::timing[static_cast<int>(res_hdmi)].h_active, digilent::timing[static_cast<int>(res_hdmi)].v_active);
+	vdma_driver_2.enableWrite();
 
 	/* Initialize PL Parameter */
 	slab::System pl_connection("/dev/uio0");
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_EDGE_THRES  , 60); // 0 : edge threshold       
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_ES_THRES    , 5);  // 1 : conv threshold       
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_ES_COLOR    , 1);  // 2 : edge selection color 
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_FILTER_TYPE , 1);  // 3 : filter type          
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_FL_OVERLAY  , 1);  // 4 : fl overlay           
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_LINE_WIDTH  , 60); // 5 : line width           
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_THRES_WIDHT , 10); // 6 : threshold width      
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_DETECT_LINES, 6);  // 7 : detect lines         
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_EDGE_THRES  , 60);         //  0 : edge threshold       
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_ES_THRES    , 5);          //  1 : conv threshold       
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_ES_COLOR    , 1);          //  2 : edge selection color 
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_FILTER_TYPE , 1);          //  3 : filter type          
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_FL_OVERLAY  , 1);          //  4 : fl overlay           
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_LINE_WIDTH  , 60);         //  5 : line width           
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_THRES_WIDHT , 10);         //  6 : threshold width      
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_DETECT_LINES, 6);          //  7 : detect lines         
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MIN, 100);  //  8 : binarization threshold        
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MAX, 200);  //  9 : binarization threshold        
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_VIDEO_MODE, 3);            // 10 : video mode         
 	
 	/* live view application work on another thread */
-	std::thread t(live_stream, std::ref(vdma_driver_0), std::ref(vdma_driver_1));
+	std::thread t(live_stream, std::ref(vdma_driver_1), std::ref(vdma_driver_2));
 
 	const std::string usage = "Usage: <exit|x> | <reset|r> | <edit|e>";
 	
@@ -287,14 +294,17 @@ void edit_param(slab::System pl_connection){
 	int reg_num, value;
 
 	std::cout << "Please input register number. \n \
-	0 : edge threshold        \n \
-	1 : conv threshold        \n \
-	2 : edge selection color  \n \
-	3 : filter type           \n \
-	4 : fl overlay            \n \
-	5 : line width            \n \
-	6 : threshold width       \n \
-	7 : detect lines          \n >> ";
+	0 : edge threshold             \n \
+	1 : conv threshold             \n \
+	2 : edge selection color       \n \
+	3 : filter type                \n \
+	4 : fl overlay                 \n \
+	5 : line width                 \n \
+	6 : threshold width            \n \
+	7 : detect lines               \n \
+	8 : binarization threshold min \n \
+	9 : binarization threshold max \n \
+	10: video mode                \n ";
 	std::cin >> buf;
 	
 	reg_num = std::stoi(buf, nullptr, 10); 
@@ -303,4 +313,5 @@ void edit_param(slab::System pl_connection){
 	value  = std::stoi(buf, nullptr, 10); 
 
 	pl_connection.set_findContoursParams(reg_num + 11, value);
+	return;
 }
