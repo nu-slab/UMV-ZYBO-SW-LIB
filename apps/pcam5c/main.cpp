@@ -87,14 +87,17 @@ int main(int argc, char* argv[])
 
 	/* Initialize PL Parameter */
 	slab::System pl_connection("/dev/uio0");
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_EDGE_THRES  , 60); // 0 : edge threshold       
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_ES_THRES    , 5);  // 1 : conv threshold       
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_ES_COLOR    , 1);  // 2 : edge selection color 
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_FILTER_TYPE , 1);  // 3 : filter type          
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_FL_OVERLAY  , 1);  // 4 : fl overlay           
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_LINE_WIDTH  , 60); // 5 : line width           
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_THRES_WIDHT , 10); // 6 : threshold width      
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_DETECT_LINES, 6);  // 7 : detect lines         
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_EDGE_THRES  , 60);  // 0 : edge threshold       
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_ES_THRES    , 5);   // 1 : conv threshold       
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_ES_COLOR    , 1);   // 2 : edge selection color 
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_FILTER_TYPE , 1);   // 3 : filter type          
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_FL_OVERLAY  , 1);   // 4 : fl overlay           
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_LINE_WIDTH  , 60);  // 5 : line width           
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_THRES_WIDHT , 10);  // 6 : threshold width      
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_DETECT_LINES, 6);   // 7 : detect lines         
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MIN, 120); // 10 : binarization threshold        
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MAX, 255); // 11 : binarization threshold        
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_VIDEO_MODE, 3);   // 12 : video mode         
 	
 	/* live view application work on another thread */
 	std::thread t(live_stream, std::ref(vdma_driver_0), std::ref(vdma_driver_1));
@@ -249,6 +252,15 @@ void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_d
 					-1,
 					cv::LINE_AA
 			);
+			cv::circle(
+					frame_0,
+					cv::Point(pl_connection.points_[i].h, pl_connection.points_[i].v),
+					2,
+					cv::Scalar(0, pl_connection.points_[i].d * 255.0, !pl_connection.points_[i].d * 255),
+					-1,
+					cv::LINE_AA
+			);
+
 		}
 		cv::putText(frame_1, 
 				"detected points:" + std::to_string(n_point) + "  duration:" + std::to_string((double)(end - start) / CLOCKS_PER_SEC) + "sec",
@@ -287,14 +299,19 @@ void edit_param(slab::System pl_connection){
 	int reg_num, value;
 
 	std::cout << "Please input register number. \n \
-	0 : edge threshold        \n \
-	1 : conv threshold        \n \
-	2 : edge selection color  \n \
-	3 : filter type           \n \
-	4 : fl overlay            \n \
-	5 : line width            \n \
-	6 : threshold width       \n \
-	7 : detect lines          \n >> ";
+	0 : edge threshold             \n \
+	1 : conv threshold             \n \
+	2 : edge selection color       \n \
+	3 : filter type                \n \
+	4 : fl overlay                 \n \
+	5 : line width                 \n \
+	6 : threshold width            \n \
+	7 : detect lines               \n \
+	8 : -------------------------- \n \
+	9 : -------------------------- \n \
+	10: binarization threshold min \n \
+	11: binarization threshold max \n \
+	12: video mode                \n ";
 	std::cin >> buf;
 	
 	reg_num = std::stoi(buf, nullptr, 10); 
@@ -303,4 +320,5 @@ void edit_param(slab::System pl_connection){
 	value  = std::stoi(buf, nullptr, 10); 
 
 	pl_connection.set_findContoursParams(reg_num + 11, value);
+	return;
 }

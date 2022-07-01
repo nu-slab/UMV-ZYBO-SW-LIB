@@ -16,9 +16,9 @@ namespace slab
 	//------------------------------------------------------
 	// Find Contours
 	//------------------------------------------------------
-
 	void System::set_findContoursParams(uint32_t reg_num, uint32_t value)
 	{ 
+		printf("Write : %d -> %d \n", value, reg_num);
 		switch(reg_num){
 			case WADDR_FINDCONTOURS_EDGE_THRES:
 				write(WADDR_FINDCONTOURS_EDGE_THRES  , value);
@@ -44,8 +44,11 @@ namespace slab
 			case WADDR_FINDCONTOURS_DETECT_LINES:
 				write(WADDR_FINDCONTOURS_DETECT_LINES, value);
 				break;
-			case WADDR_FINDCONTOURS_BINZ_THRESHOLD:
-				write(WADDR_FINDCONTOURS_BINZ_THRESHOLD, value);
+			case WADDR_FINDCONTOURS_BINZ_THRESHOLD_MIN:
+				write(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MIN, value);
+				break;
+			case WADDR_FINDCONTOURS_BINZ_THRESHOLD_MAX:
+				write(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MAX, value);
 				break;
 			case WADDR_FINDCONTOURS_VIDEO_MODE:
 				write(WADDR_FINDCONTOURS_VIDEO_MODE, value);

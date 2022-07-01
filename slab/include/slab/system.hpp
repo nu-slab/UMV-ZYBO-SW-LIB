@@ -26,29 +26,30 @@
 #define RADDR_DETECTION                     0x1e
 #define RADDR_SW                            0x1f
 
-#define WADDR_WHEEL_ACCEL_R                 0x00
-#define WADDR_WHEEL_ACCEL_L                 0x01
-#define WADDR_WHEEL_BRAKE                   0x02
-#define WADDR_WHEEL_PID_KP_R                0x03
-#define WADDR_WHEEL_PID_KP_L                0x04
-#define WADDR_WHEEL_PID_KI_R                0x05
-#define WADDR_WHEEL_PID_KI_L                0x06
-#define WADDR_WHEEL_PID_KD_R                0x07
-#define WADDR_WHEEL_PID_KD_L                0x08
-#define WADDR_WHEEL_PID_BIAS_R              0x09
-#define WADDR_WHEEL_PID_BIAS_L              0x0a
-#define WADDR_FINDCONTOURS_EDGE_THRES       0x0b
-#define WADDR_FINDCONTOURS_ES_THRES         0x0c
-#define WADDR_FINDCONTOURS_ES_COLOR         0x0d
-#define WADDR_FINDCONTOURS_FILTER_TYPE      0x0e
-#define WADDR_FINDCONTOURS_FL_OVERLAY       0x0f
-#define WADDR_FINDCONTOURS_LINE_WIDTH       0x10
-#define WADDR_FINDCONTOURS_THRES_WIDHT      0x11
-#define WADDR_FINDCONTOURS_DETECT_LINES     0x12
-#define WADDR_FINDCONTOURS_WRITE_PROTECT    0x13
-#define WADDR_FINDCONTOURS_RADDR            0x14
-#define WADDR_FINDCONTOURS_BINZ_THRESHOLD   0x15
-#define WADDR_FINDCONTOURS_VIDEO_MODE       0x16
+#define WADDR_WHEEL_ACCEL_R                   0x00
+#define WADDR_WHEEL_ACCEL_L                   0x01
+#define WADDR_WHEEL_BRAKE                     0x02
+#define WADDR_WHEEL_PID_KP_R                  0x03
+#define WADDR_WHEEL_PID_KP_L                  0x04
+#define WADDR_WHEEL_PID_KI_R                  0x05
+#define WADDR_WHEEL_PID_KI_L                  0x06
+#define WADDR_WHEEL_PID_KD_R                  0x07
+#define WADDR_WHEEL_PID_KD_L                  0x08
+#define WADDR_WHEEL_PID_BIAS_R                0x09
+#define WADDR_WHEEL_PID_BIAS_L                0x0a
+#define WADDR_FINDCONTOURS_EDGE_THRES         0x0b
+#define WADDR_FINDCONTOURS_ES_THRES           0x0c
+#define WADDR_FINDCONTOURS_ES_COLOR           0x0d
+#define WADDR_FINDCONTOURS_FILTER_TYPE        0x0e
+#define WADDR_FINDCONTOURS_FL_OVERLAY         0x0f
+#define WADDR_FINDCONTOURS_LINE_WIDTH         0x10
+#define WADDR_FINDCONTOURS_THRES_WIDHT        0x11
+#define WADDR_FINDCONTOURS_DETECT_LINES       0x12
+#define WADDR_FINDCONTOURS_WRITE_PROTECT      0x13
+#define WADDR_FINDCONTOURS_RADDR              0x14
+#define WADDR_FINDCONTOURS_BINZ_THRESHOLD_MIN 0x15
+#define WADDR_FINDCONTOURS_BINZ_THRESHOLD_MAX 0x16
+#define WADDR_FINDCONTOURS_VIDEO_MODE         0x17
 
 namespace slab
 {
