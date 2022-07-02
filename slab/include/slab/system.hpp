@@ -23,7 +23,7 @@
 #define RADDR_FINDCONTOURS_POINTS_NUM       0x03
 #define RADDR_FINDCONTOURS_POINT_DATA       0x04
 
-#define RADDR_DETECTION                     0x1e
+#define RADDR_DETECTION                     0x05
 #define RADDR_SW                            0x1f
 
 #define WADDR_WHEEL_ACCEL_R                   0x00
