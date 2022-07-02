@@ -19,7 +19,8 @@
 #define REG_BASE_ADDR   XPAR_SYSTEM_ZYNQ_PROCESSOR_0_S00_AXI_BASEADDR
 #define MEM_BASE_ADDR_0 (XPAR_DDR_MEM_BASEADDR + 0x09000000)
 #define MEM_BASE_ADDR_1 (XPAR_DDR_MEM_BASEADDR + 0x0A000000)
-#define GAMMA_BASE_ADDR XPAR_SYSTEM_PCAMINTERFACE_AXI_GAMMACORRECTION_0_BASEADDR
+#define MEM_BASE_ADDR_2 (XPAR_DDR_MEM_BASEADDR + 0x0B000000)
+#define GAMMA_BASE_ADDR XPAR_SYSTEM_PCAMINTERFACE_AXI_GAMMACORRECTION_BASEADDR
 #define RESOLUTION_H    1280
 #define RESOLUTION_V     720
 #define RED             "\e[0;31m"
@@ -52,13 +53,13 @@ int main(int argc, char* argv[])
 		vdma_driver_0(static_cast<uint16_t>(XPAR_AXIVDMA_0_DEVICE_ID),
 				static_cast<uint32_t>(MEM_BASE_ADDR_0),            // frame buffer base addr
 				irpt_ctl,                                          // interrupt control 
-				XPAR_FABRIC_AXIVDMA_0_MM2S_INTROUT_VEC_ID,         // read interrupt ID
-				XPAR_FABRIC_AXIVDMA_0_S2MM_INTROUT_VEC_ID),        // write interrupt ID
+				0,                                                 // read interrupt ID
+				XPAR_FABRIC_AXIVDMA_0_VEC_ID),                     // write interrupt ID
 		vdma_driver_1(static_cast<uint16_t>(XPAR_AXIVDMA_1_DEVICE_ID),
 				static_cast<uint32_t>(MEM_BASE_ADDR_1),                                      
 				irpt_ctl,                                                            
-				XPAR_FABRIC_AXIVDMA_1_MM2S_INTROUT_VEC_ID,     
-				XPAR_FABRIC_AXIVDMA_1_S2MM_INTROUT_VEC_ID),
+				0,     
+				XPAR_FABRIC_AXIVDMA_1_VEC_ID),
 		vdma_driver_2(static_cast<uint16_t>(XPAR_AXIVDMA_2_DEVICE_ID),
 				static_cast<uint32_t>(MEM_BASE_ADDR_2),                                      
 				irpt_ctl,                                                            
@@ -77,9 +78,6 @@ int main(int argc, char* argv[])
 	vdma_driver_0.resetWrite();
 	vdma_driver_0.configureWrite(digilent::timing[static_cast<int>(res_hdmi)].h_active, digilent::timing[static_cast<int>(res_hdmi)].v_active);
 	vdma_driver_0.enableWrite();
-	vdma_driver_0.resetRead();
-	vdma_driver_0.configureRead(digilent::timing[static_cast<int>(res_hdmi)].h_active, digilent::timing[static_cast<int>(res_hdmi)].v_active);
-	vdma_driver_0.enableRead();
 	
 	vdma_driver_1.resetWrite();
 	vdma_driver_1.configureWrite(digilent::timing[static_cast<int>(res_hdmi)].h_active, digilent::timing[static_cast<int>(res_hdmi)].v_active);
@@ -88,6 +86,9 @@ int main(int argc, char* argv[])
 	vdma_driver_2.resetWrite();
 	vdma_driver_2.configureWrite(digilent::timing[static_cast<int>(res_hdmi)].h_active, digilent::timing[static_cast<int>(res_hdmi)].v_active);
 	vdma_driver_2.enableWrite();
+	vdma_driver_2.resetRead();
+	vdma_driver_2.configureRead(digilent::timing[static_cast<int>(res_hdmi)].h_active, digilent::timing[static_cast<int>(res_hdmi)].v_active);
+	vdma_driver_2.enableRead();
 
 	/* Initialize PL Parameter */
 	slab::System pl_connection("/dev/uio0");
@@ -104,7 +105,7 @@ int main(int argc, char* argv[])
 	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_VIDEO_MODE, 3);            // 10 : video mode         
 	
 	/* live view application work on another thread */
-	std::thread t(live_stream, std::ref(vdma_driver_1), std::ref(vdma_driver_2));
+	std::thread t(live_stream, std::ref(vdma_driver_1), std::ref(vdma_driver_0));
 
 	const std::string usage = "Usage: <exit|x> | <reset|r> | <edit|e>";
 	
