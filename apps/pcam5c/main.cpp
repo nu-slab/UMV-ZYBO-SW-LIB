@@ -28,7 +28,7 @@
 #define VNC
 
 /* for Debug */
-void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_0, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_1);
+void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_0, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_1, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_2);
 
 void edit_param(slab::System pl_connection);
 
@@ -50,22 +50,19 @@ int main(int argc, char* argv[])
 	digilent::ScuGicInterruptController irpt_ctl(static_cast<uint16_t>(XPAR_PS7_SCUGIC_0_DEVICE_ID));
 
 	digilent::AXI_VDMA<digilent::ScuGicInterruptController>
-		vdma_driver_0(static_cast<uint16_t>(XPAR_AXIVDMA_0_DEVICE_ID),
-				static_cast<uint32_t>(MEM_BASE_ADDR_0),            // frame buffer base addr
-				irpt_ctl,                                          // interrupt control 
-				0,                                                 // read interrupt ID
-				XPAR_FABRIC_AXIVDMA_0_VEC_ID),                     // write interrupt ID
-		vdma_driver_1(static_cast<uint16_t>(XPAR_AXIVDMA_1_DEVICE_ID),
-				static_cast<uint32_t>(MEM_BASE_ADDR_1),                                      
-				irpt_ctl,                                                            
-				0,     
-				XPAR_FABRIC_AXIVDMA_1_VEC_ID),
-		vdma_driver_2(static_cast<uint16_t>(XPAR_AXIVDMA_2_DEVICE_ID),
-				static_cast<uint32_t>(MEM_BASE_ADDR_2),                                      
-				irpt_ctl,                                                            
-				XPAR_FABRIC_AXIVDMA_2_MM2S_INTROUT_VEC_ID,     
-				XPAR_FABRIC_AXIVDMA_2_S2MM_INTROUT_VEC_ID);
-
+		vdma_driver_0(
+			static_cast<uint16_t>(XPAR_AXIVDMA_0_DEVICE_ID),
+			static_cast<uint32_t>(MEM_BASE_ADDR_0)
+		),
+		vdma_driver_1(
+			static_cast<uint16_t>(XPAR_AXIVDMA_1_DEVICE_ID),
+			static_cast<uint32_t>(MEM_BASE_ADDR_1)                                      
+		),
+		vdma_driver_2(
+			static_cast<uint16_t>(XPAR_AXIVDMA_2_DEVICE_ID),
+			static_cast<uint32_t>(MEM_BASE_ADDR_2)
+		);
+	
 	/* Initialize pxam5c */
 	cam.work(mode_pcam5c);
 
@@ -102,10 +99,10 @@ int main(int argc, char* argv[])
 	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_DETECT_LINES, 6);          //  7 : detect lines         
 	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MIN, 100);  //  8 : binarization threshold        
 	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_BINZ_THRESHOLD_MAX, 200);  //  9 : binarization threshold        
-	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_VIDEO_MODE, 3);            // 10 : video mode         
+	pl_connection.set_findContoursParams(WADDR_FINDCONTOURS_VIDEO_MODE, 2);            // 10 : video mode         
 	
 	/* live view application work on another thread */
-	std::thread t(live_stream, std::ref(vdma_driver_1), std::ref(vdma_driver_0));
+	std::thread t(live_stream, std::ref(vdma_driver_0), std::ref(vdma_driver_1), std::ref(vdma_driver_2));
 
 	const std::string usage = "Usage: <exit|x> | <reset|r> | <edit|e>";
 	
@@ -207,7 +204,7 @@ inline bgr_t hsv2rgb(float in_h, float in_s, float in_v)
 	return bgr;
 }
 
-void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_0, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_1)
+void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_0, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_1, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_2)
 {
 	const uint32_t pixels      = RESOLUTION_H * RESOLUTION_V;
 	const int      n_frame     = 3;
@@ -224,22 +221,28 @@ void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_d
 	/* mmap */
 	bgr_t *frame_buf_0 = (bgr_t*)mmap(0, n_frame * frameBytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, vdma_driver_0.getFrameBufferAddr() & ~MAP_MASK);
 	bgr_t *frame_buf_1 = (bgr_t*)mmap(0, n_frame * frameBytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, vdma_driver_1.getFrameBufferAddr() & ~MAP_MASK);
+	bgr_t *frame_buf_2 = (bgr_t*)mmap(0, n_frame * frameBytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, vdma_driver_2.getFrameBufferAddr() & ~MAP_MASK);
 	if (frame_buf_0 == nullptr) {
 		std::cerr << RED << "[ERROR] mmap failed: frame_buf_0" << std::endl;
 	}
 	if (frame_buf_1 == nullptr) {
 		std::cerr << RED << "[ERROR] mmap failed: frame_buf_1" << std::endl;
 	}
+	if (frame_buf_2 == nullptr) {
+		std::cerr << RED << "[ERROR] mmap failed: frame_buf_2" << std::endl;
+	}
 
 	/* show video */
 	cv::Mat frame_0(RESOLUTION_V, RESOLUTION_H, CV_8UC3);
 	cv::Mat frame_1(RESOLUTION_V, RESOLUTION_H, CV_8UC3);
+	cv::Mat frame_2(RESOLUTION_V, RESOLUTION_H, CV_8UC3);
 	cv::Mat cat, view;
 	
 	slab::System pl_connection("/dev/uio0");  
 	while (true) {
 		get_framebuffer(frame_buf_0, (bgr_t *)frame_0.data, pixels, frameBytes, vdma_driver_0.getCurrReadFrame());
 		get_framebuffer(frame_buf_1, (bgr_t *)frame_1.data, pixels, frameBytes, vdma_driver_1.getCurrReadFrame());
+		get_framebuffer(frame_buf_2, (bgr_t *)frame_2.data, pixels, frameBytes, vdma_driver_2.getCurrReadFrame());
 
 		// front (another board)
 		clock_t start = clock();    // スタート時間
@@ -250,7 +253,15 @@ void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_d
 		
 		for (int i = 0; i < n_point; i++) {
 			cv::circle(
-					frame_1,
+					frame_0,
+					cv::Point(pl_connection.points_[i].h, pl_connection.points_[i].v),
+					2,
+					cv::Scalar(0, pl_connection.points_[i].d * 255.0, !pl_connection.points_[i].d * 255),
+					-1,
+					cv::LINE_AA
+			);
+			cv::circle(
+					frame_2,
 					cv::Point(pl_connection.points_[i].h, pl_connection.points_[i].v),
 					2,
 					cv::Scalar(0, pl_connection.points_[i].d * 255.0, !pl_connection.points_[i].d * 255),
@@ -258,7 +269,7 @@ void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_d
 					cv::LINE_AA
 			);
 		}
-		cv::putText(frame_1, 
+		cv::putText(frame_2, 
 				"detected points:" + std::to_string(n_point) + "  duration:" + std::to_string((double)(end - start) / CLOCKS_PER_SEC) + "sec",
 				cv::Point(text_offset_h, text_offset_v),
 				cv::FONT_HERSHEY_SIMPLEX,
@@ -268,11 +279,10 @@ void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_d
 				CV_AA
 		);
 
-		//cv::imshow("Pcam5C", frame_1);
-		cv::vconcat(frame_1, frame_0, cat);
-		cv::resize(cat, view, cv::Size(), width / (float)cat.cols, 2 * height / (float)cat.rows);
-		//cv::resize(frame_0, view, cv::Size(), width / (float)frame_0.cols, height / (float)frame_0.rows);
-		cv::imshow("Pcam5C", view);
+		cv::vconcat(frame_2, frame_0, cat);
+		cv::vconcat(cat, frame_1, cat);
+		cv::resize(cat, view, cv::Size(), width / ((float)cat.cols), 3 * height / ((float)cat.rows));
+		cv::imshow("Debug", view);
 
 		int key = cv::waitKey(1);
 		if (key == 'q') break;
