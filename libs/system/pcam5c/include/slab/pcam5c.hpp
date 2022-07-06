@@ -11,7 +11,6 @@
 #include <slab/ps/PS_IIC.hpp>
 #include <slab/video/VideoOutput.hpp>
 #include <slab/video/AXI_VDMA.hpp>
-#include <slab/video/ScuGicInterruptController.hpp>
 #include <slab/bsp/MIPI_CSI_2_RX.h>
 #include <slab/bsp/MIPI_D_PHY_RX.h>
 #include <slab/bsp/xparameters.h>
