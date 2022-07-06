@@ -28,7 +28,7 @@
 #define VNC
 
 /* for Debug */
-void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_0, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_1, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_2);
+void live_stream(digilent::AXI_VDMA& vdma_driver_0, digilent::AXI_VDMA& vdma_driver_1, digilent::AXI_VDMA& vdma_driver_2);
 
 void edit_param(slab::System pl_connection);
 
@@ -46,10 +46,9 @@ int main(int argc, char* argv[])
 
 	digilent::pcam5c cam("i2c-0", mode_pcam5c, digilent::OV5640_cfg::awb_t::AWB_ADVANCED); // on-board Pcam5C
 
-	digilent::VideoOutput               vid(XPAR_VTC_0_DEVICE_ID);
-	digilent::ScuGicInterruptController irpt_ctl(static_cast<uint16_t>(XPAR_PS7_SCUGIC_0_DEVICE_ID));
+	digilent::VideoOutput vid(XPAR_VTC_0_DEVICE_ID);
 
-	digilent::AXI_VDMA<digilent::ScuGicInterruptController>
+	digilent::AXI_VDMA
 		vdma_driver_0(
 			static_cast<uint16_t>(XPAR_AXIVDMA_0_DEVICE_ID),
 			static_cast<uint32_t>(MEM_BASE_ADDR_0)
@@ -204,7 +203,7 @@ inline bgr_t hsv2rgb(float in_h, float in_s, float in_v)
 	return bgr;
 }
 
-void live_stream(digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_0, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_1, digilent::AXI_VDMA<digilent::ScuGicInterruptController>& vdma_driver_2)
+void live_stream(digilent::AXI_VDMA& vdma_driver_0, digilent::AXI_VDMA& vdma_driver_1, digilent::AXI_VDMA& vdma_driver_2)
 {
 	const uint32_t pixels      = RESOLUTION_H * RESOLUTION_V;
 	const int      n_frame     = 3;
