@@ -1,4 +1,10 @@
-#include "kbhit.hpp"
+#ifndef KBHIT_HPP
+#define KBHIT_HPP
+
+#include <stdio.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 bool kbhit(void)
 {
@@ -25,3 +31,4 @@ bool kbhit(void)
 
   return false;
 }
+#endif // KBHIT_HPP

@@ -6,7 +6,7 @@
 #include<slab/system.hpp>
 #include"fixed_queue.hpp"
 // unnecessary
-#include"mod/kbhit.hpp"
+#include"kbhit.hpp"
 
 #define CLASS_NUM  4
 #define BUF_SIZE  20
