@@ -1,0 +1,83 @@
+// necessary
+#include<thread>
+#include<iostream>
+#include<iomanip>
+#include<slab/system.hpp>
+#include"fixed_queue.hpp"
+// unnecessary
+#include"mod/kbhit.hpp"
+
+#define CLASS_NUM  4
+#define BUF_SIZE  20
+#define DETECT_TH 10
+
+// exit flag
+bool exit_flag = false;
+bool detect_flag[CLASS_NUM];
+
+template <typename T>
+void printQue(const FixedQueue<T>& que)
+{
+	std::cout << "print: ";
+	for(const T& t : que)
+	{
+		std::cout << t << ", ";
+	}
+	std::cout << std::endl;
+}
+
+void detection_feedback(slab::System& zynq){
+
+	FixedQueue<int> detection[CLASS_NUM];
+
+	uint8_t i, j, result;
+	
+	for(FixedQueue<int> d : detection) {
+		d.fixed_size(BUF_SIZE);
+	}
+
+	for(int i = 1; i < 100; ++i)
+	{
+		detection[0].push_back(i);
+		printQue(detection[0]);
+	}
+
+	//	while (!exit_flag) {
+	//		//result = zynq.recv_detection();
+	//
+	//		//for(i=0; i < CLASS_NUM; i++){
+	//		//	detection[i].push_back(1);
+	//		//}
+	//
+	//		for(i=0; i < CLASS_NUM; i++){
+	//			for(j = 0; j < BUF_SIZE; j++){
+	//				detection[0].push_back(i);
+	//				printQue(detection[0]);
+	//			}
+	//			printf("\n");
+	//			
+	//			if(detection[i].count > DETECT_TH){ detect_flag[i] = true; }
+	//		};
+	//		printf("\n");
+	//		usleep(600000);
+	//	}
+}
+
+int main(void){
+
+	slab::System pl_connection("/dev/uio0");
+	std::thread t(detection_feedback, std::ref(pl_connection));
+
+
+	while (true) {
+		if (kbhit()) {
+			break;
+		}
+	}
+	exit_flag = true;
+	t.join();
+
+	return 0;
+}
+
+
