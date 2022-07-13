@@ -1,18 +1,18 @@
 // necessary
 #include<thread>
 #include<iostream>
-#include<iomanip>
 #include<math.h>
 #include<slab/system.hpp>
 #include"fixed_queue.hpp"
+
 // unnecessary
 #include"kbhit.hpp"
 
 #define CLASS_NUM  4
 #define BUF_SIZE  20
 #define DETECT_TH 10
+#define WAIT_TIME 500000
 
-// exit flag
 bool exit_flag = false;
 bool detect_flag[CLASS_NUM];
 
@@ -40,7 +40,7 @@ void detection_feedback(slab::System& zynq){
 		}
 		std::cout << "\r";
 
-		usleep(500000);
+		usleep(WAIT_TIME);
 	}
 }
 
