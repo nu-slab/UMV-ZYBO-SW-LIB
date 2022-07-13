@@ -1,17 +1,23 @@
+// necessary
 #include<thread>
 #include<iostream>
 #include<iomanip>
 #include<slab/system.hpp>
 
-bool kill_flag = false;
+// unnecessary
+#include"mod/kbhit.hpp"
+
+// exit flag
+bool exit_flag = false;
 
 void pid_feedback(slab::System& zynq){
 	std::string buf;
 	
-	std::cout << std::setw(4) << "r" << std::setw(4) << "l" << "\n";
-	while (!kill_flag) {
+	while (!exit_flag) {
+		std::cout << "pid-feedback";
 		std::cout << std::setw(4) << zynq.recv_rotation(true);
-		std::cout << std::setw(4) << zynq.recv_rotation(false) << "\r" << std::flush;
+		std::cout << std::setw(4) << zynq.recv_rotation(false) << "\n" << std::flush;
+		usleep(100000);
 	}
 }
 
@@ -23,10 +29,12 @@ int main(void){
 	std::string buf;
 	
 	while (true) {
-		std::cin >> buf;
-		if (buf == "exit" || buf == "x" | std::cin.fail()) break;
+		if (kbhit()) {
+			std::cout << std::endl;
+			break;
+		}
 	}
-	kill_flag = true;
+	exit_flag = true;
 	t.join();
 
 	return 0;
