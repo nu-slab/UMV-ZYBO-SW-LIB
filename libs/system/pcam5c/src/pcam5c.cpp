@@ -76,7 +76,7 @@ namespace digilent
 			else 
 				std::cout << "[PCam init : Status NG] ";
 
-			printf("addr : 0x%04X, write : 0x%02X, read : 0x%02X\n", reg_addr, (int)reg_data, (int)buf);
+			//printf("addr : 0x%04X, write : 0x%02X, read : 0x%02X\n", reg_addr, (int)reg_data, (int)buf);
 			if (buf == reg_data) break;
 
 			cnt--;
