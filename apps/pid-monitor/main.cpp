@@ -5,7 +5,7 @@
 #include<slab/system.hpp>
 
 // unnecessary
-#include"mod/kbhit.hpp"
+#include"kbhit.hpp"
 
 // exit flag
 bool exit_flag = false;
